@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,25 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+        gold: {
+          100: '#FFF9E6',
+          200: '#FFF3CC',
+          300: '#FFECB3',
+          400: '#FFE699',
+          500: '#FFDF80',
+          600: '#D9BC6A',
+          700: '#B39855',
+          800: '#8C7540',
+          900: '#66522B',
+        },
+        cream: {
+          50: '#FFFDF9',
+          100: '#FFF9F0',
+          200: '#FFF5E6',
+          300: '#FFF0D9',
+          400: '#FFEACC',
+        },
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,12 +103,36 @@ export default {
 					to: {
 						height: '0'
 					}
-				}
+				},
+        'fade-in': {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(10px)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)'
+          }
+        },
+        'image-zoom': {
+          '0%': {
+            transform: 'scale(1)'
+          },
+          '100%': {
+            transform: 'scale(1.05)'
+          }
+        },
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+				'accordion-up': 'accordion-up 0.2s ease-out',
+        'fade-in': 'fade-in 0.7s ease-out forwards',
+        'image-zoom': 'image-zoom 5s ease-in-out infinite alternate',
+			},
+      fontFamily: {
+        'serif': ['Cormorant Garamond', 'serif'],
+        'sans': ['Montserrat', 'sans-serif'],
+      }
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
