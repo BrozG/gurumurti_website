@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Gallery, PaintRoller, Paintbrush, Palette, Images } from 'lucide-react';
+import { Image, PaintRoller, Paintbrush, Palette, GalleryHorizontal } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SectionTitle from '@/components/SectionTitle';
@@ -179,7 +179,7 @@ const Index = () => {
             <ServiceCard 
               title="Complete Planning"
               description="End-to-end wedding planning services handling every detail from concept to execution."
-              icon={<Gallery size={40} />}
+              icon={<GalleryHorizontal size={40} />}
             />
           </div>
           
