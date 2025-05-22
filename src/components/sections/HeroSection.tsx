@@ -1,15 +1,14 @@
-
 import React from 'react';
 
 const HeroSection = () => {
   return (
-    <section id="hero" className="relative h-screen flex items-center justify-center">
-      {/* Hero Image */}
-      <div className="absolute inset-0 z-0">
+    <section id="hero" className="relative h-screen flex items-center justify-center overflow-hidden">
+      {/* Hero Background (Image + Overlay) */}
+      <div className="absolute inset-0 z-0 animate-image-zoom">
         <img 
-          src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6" 
+          src="/hero.jpg" 
           alt="Elegant wedding decoration" 
-          className="w-full h-full object-cover animate-image-zoom"
+          className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/70"></div>
       </div>

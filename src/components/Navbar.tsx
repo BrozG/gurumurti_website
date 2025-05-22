@@ -30,16 +30,19 @@ const Navbar = () => {
   return (
     <nav
       className={cn(
-        'fixed w-full z-50 transition-all duration-300',
+        'fixed top-4 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300',
         scrolled
-          ? 'bg-background/90 backdrop-blur-sm shadow-md py-2'
-          : 'bg-transparent py-4'
+          ? 'bg-background/80 backdrop-blur-lg shadow-xl py-2 px-6 rounded-full border border-white/10'
+          : 'bg-background/50 backdrop-blur-md py-3 px-6 rounded-full border border-white/5'
       )}
     >
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <a href="#" className="font-serif text-2xl font-bold text-gold-800 flex items-center">
-          <span className="mr-1">GURUMURTI</span>
+      <div className="flex justify-between items-center w-full max-w-[1000px] mx-auto px-4 gap-x-10">
+        <a href="#" className="flex items-center space-x-2">
+          <img src ="/logo.jpg" alt="Logo" className="w-8 h-8 rounded-full" />
+          <span className="font-serif text-2xl font-bold text-gold-800 flex items-center space-x-1">
+          <span>GURUMURTI</span>
           <span className="text-gold-600">DECORATORS</span>
+          </span>
         </a>
 
         {/* Desktop Navigation */}

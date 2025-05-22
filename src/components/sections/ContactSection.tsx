@@ -27,7 +27,7 @@ const ContactSection = () => {
                 </div>
                 <div>
                   <h4 className="font-medium">Phone</h4>
-                  <p className="text-muted-foreground">+91 9876543210</p>
+                  <p className="text-muted-foreground">+91 9832993905</p>
                 </div>
               </div>
               
@@ -40,7 +40,7 @@ const ContactSection = () => {
                 </div>
                 <div>
                   <h4 className="font-medium">Email</h4>
-                  <p className="text-muted-foreground">info@gurumurti.com</p>
+                  <p className="text-muted-foreground">gurumurtidecorators@gmail.com</p>
                 </div>
               </div>
               
@@ -53,39 +53,13 @@ const ContactSection = () => {
                 </div>
                 <div>
                   <h4 className="font-medium">Location</h4>
-                  <p className="text-muted-foreground">Gangtok, Sikkim, India</p>
+                  <p className="text-muted-foreground">Indira Bye Pass Road,Opposite S.D.F Bhawan, Gangtok, Sikkim, India</p>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="artframe">
-            <form className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="name" className="block mb-2 text-sm font-medium">Name</label>
-                  <input type="text" id="name" className="w-full px-4 py-2 border border-gold-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-500" />
-                </div>
-                <div>
-                  <label htmlFor="email" className="block mb-2 text-sm font-medium">Email</label>
-                  <input type="email" id="email" className="w-full px-4 py-2 border border-gold-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-500" />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="phone" className="block mb-2 text-sm font-medium">Phone</label>
-                <input type="tel" id="phone" className="w-full px-4 py-2 border border-gold-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-500" />
-              </div>
-              <div>
-                <label htmlFor="event-date" className="block mb-2 text-sm font-medium">Event Date</label>
-                <input type="date" id="event-date" className="w-full px-4 py-2 border border-gold-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-500" />
-              </div>
-              <div>
-                <label htmlFor="message" className="block mb-2 text-sm font-medium">Message</label>
-                <textarea id="message" rows={4} className="w-full px-4 py-2 border border-gold-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-gold-500"></textarea>
-              </div>
-              <button type="submit" className="w-full px-6 py-3 bg-gold-600 text-white rounded-sm hover:bg-gold-700 transition-colors">Send Message</button>
-            </form>
-          </div>
+          
         </div>
       </div>
     </section>

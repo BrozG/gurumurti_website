@@ -41,11 +41,11 @@ const AboutSection = () => {
             </div>
           </div>
           <div className="order-1 lg:order-2">
-            <div className="artframe">
+            <div className="h-80 md:h-[28rem] lg:h-[32rem] rounded-xl overflow-hidden shadow-md">
               <img 
-                src="https://images.unsplash.com/photo-1560415103-132320330c66" 
+                src="/aboutus.jpg"
                 alt="About Gurumurti Decorators" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out animate-fade-in"
               />
             </div>
           </div>

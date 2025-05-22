@@ -7,20 +7,20 @@ const TestimonialsSection = () => {
   // Sample testimonial data
   const testimonials = [
     {
-      quote: "Gurumurti Decorators transformed our wedding into a magical experience. Every detail was perfect!",
-      name: "Anjali & Rahul",
-      role: "Newlywed Couple"
-    },
-    {
-      quote: "The attention to detail and artistic vision made our celebration truly unique. Highly recommend!",
-      name: "Priya Singh",
-      role: "Bride"
-    },
-    {
-      quote: "They understood our vision perfectly and executed it beyond our expectations. Truly talented team!",
-      name: "Vikram Thapa",
-      role: "Groom"
-    }
+    quote: "Gurumurti Decorators brought our Sikkimese wedding to life with elegance and tradition. Every detail felt personal and heartfelt.",
+    name: "Tashi & Pema",
+    role: "Newlywed Couple from Gangtok"
+  },
+  {
+    quote: "From the traditional décor to the floral arrangements, everything was thoughtfully done. Our families were so impressed!",
+    name: "Sonam Lepcha",
+    role: "Bride from Namchi"
+  },
+  {
+    quote: "They understood our cultural values and turned our big day into something unforgettable. Thank you for making it so special!",
+    name: "Karma Bhutia",
+    role: "Groom from Mangan"
+  }
   ];
 
   return (
