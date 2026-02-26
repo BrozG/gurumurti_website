@@ -1,4 +1,5 @@
 {
+  "exclude": ["api"],
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
@@ -21,10 +22,14 @@
     "noImplicitAny": false,
     "noFallthroughCasesInSwitch": false,
 
-    "baseUrl": ".",
+    /* Path aliases */
+    "baseUrl": "./src",
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["*"]
+    },
+
+    /* Silence future TS deprecation warning */
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src"]
 }

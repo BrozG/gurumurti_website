@@ -18,12 +18,13 @@ const Navbar = () => {
   }, []);
 
   const navItems = [
-    { name: 'Home', href: '#hero' },
-    { name: 'About', href: '#about' },
-    { name: 'Gallery', href: '#gallery' },
-    { name: 'Services', href: '#services' },
-    { name: 'Testimonials', href: '#testimonials' },
-    { name: 'Contact', href: '#contact' },
+    { name: 'Home', href: '/#hero' },
+    { name: 'About', href: '/#about' },
+    { name: 'Gallery', href: '/#gallery' },
+    { name: 'Services', href: '/#services' },
+    { name: 'Testimonials', href: '/#testimonials' },
+    { name: 'Contact', href: '/#contact' },
+    { name: 'Admin', href: '/admin' },
   ];
 
   return (
@@ -36,11 +37,11 @@ const Navbar = () => {
   )}
 >
   <div className="flex justify-between items-center w-full max-w-screen-xl mx-auto px-4 py-3 md:py-4">
-    <a href="#" className="flex items-center space-x-2">
+    <a href="/" className="flex items-center gap-2 min-w-0">
       <img src="/logo.jpg" alt="Logo" className="w-8 h-8 rounded-full" />
-      <span className="font-serif text-lg sm:text-xl md:text-2xl font-bold text-gold-800 flex items-center space-x-1">
+      <span className="font-serif text-base sm:text-xl md:text-2xl font-bold text-gold-800 flex items-center gap-1 whitespace-nowrap">
         <span>GURUMURTI</span>
-        <span className="text-gold-600">DECORATORS</span>
+        <span className="hidden sm:inline text-gold-600">DECORATORS</span>
       </span>
     </a>
 
@@ -59,7 +60,7 @@ const Navbar = () => {
 
     {/* Mobile Menu Button */}
     <button
-      className="md:hidden text-gold-800"
+      className="md:hidden text-gold-800 p-1"
       onClick={() => setIsOpen(!isOpen)}
     >
       {isOpen ? <X size={24} /> : <Menu size={24} />}

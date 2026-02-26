@@ -122,12 +122,24 @@ export default {
             transform: 'scale(1.05)'
           }
         },
+        'admin-bg-zoom': {
+          '0%': {
+            transform: 'scale(1)'
+          },
+          '50%': {
+            transform: 'scale(1.08)'
+          },
+          '100%': {
+            transform: 'scale(1)'
+          }
+        },
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-in': 'fade-in 0.7s ease-out forwards',
         'image-zoom': 'image-zoom 5s ease-in-out infinite alternate',
+        'admin-bg-zoom': 'admin-bg-zoom 18s ease-in-out infinite',
 			},
       fontFamily: {
         'serif': ['Cormorant Garamond', 'serif'],

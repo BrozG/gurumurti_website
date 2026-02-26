@@ -6,7 +6,7 @@ import ServiceCard from '@/components/ServiceCard';
 
 const ServicesSection = () => {
   return (
-    <section id="services" className="py-20 bg-gradient-to-b from-cream-50 to-white">
+    <section id="services" className="py-16 md:py-20 bg-gradient-to-b from-cream-50 to-white">
       <div className="container mx-auto px-4">
         <SectionTitle 
           title="Our Services" 
@@ -36,9 +36,9 @@ const ServicesSection = () => {
           />
         </div>
         
-        <div className="mt-16 bg-gold-100 border border-gold-300 p-8 rounded-sm">
-          <h3 className="text-2xl font-serif font-semibold mb-4">Customized Packages</h3>
-          <p className="mb-6">
+        <div className="mt-12 md:mt-16 bg-gold-100 border border-gold-300 p-5 sm:p-8 rounded-sm">
+          <h3 className="text-xl sm:text-2xl font-serif font-semibold mb-4">Customized Packages</h3>
+          <p className="mb-6 text-sm sm:text-base">
             We understand that every wedding is unique. The price of our services varies depending on several factors, including the type of decoration, location, and specific services required. Contact us for accurate and up-to-date pricing information tailored to your needs.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">

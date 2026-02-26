@@ -4,7 +4,7 @@ import SectionTitle from '@/components/SectionTitle';
 
 const AboutSection = () => {
   return (
-    <section id="about" className="py-20 bg-cream-50">
+    <section id="about" className="py-16 md:py-20 bg-cream-50">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="order-2 lg:order-1">
@@ -12,13 +12,13 @@ const AboutSection = () => {
               title="About Us" 
               centered={false}
             />
-            <p className="mb-4 text-lg">
+            <p className="mb-4 text-base sm:text-lg">
               GURUMURTI DECORATORS is a premier wedding planning service located in Gangtok, specializing in crafting unforgettable wedding experiences that reflect your unique style and vision.
             </p>
-            <p className="mb-4">
+            <p className="mb-4 text-sm sm:text-base">
               With years of experience in the wedding industry, we expertly handle every aspect of your special day, from venue selection and vendor coordination to event design and timeline management.
             </p>
-            <p className="mb-6">
+            <p className="mb-6 text-sm sm:text-base">
               Our role as Wedding Planners is to ensure that every detail is carefully planned and executed, allowing you to enjoy a stress-free and joyful celebration. Obsessed with perfection, we are dedicated to making your dream wedding a reality, creating a seamless and beautiful experience for you and your guests.
             </p>
             <div className="flex flex-wrap gap-4 mt-8">
@@ -41,7 +41,7 @@ const AboutSection = () => {
             </div>
           </div>
           <div className="order-1 lg:order-2">
-            <div className="h-80 md:h-[28rem] lg:h-[32rem] rounded-xl overflow-hidden shadow-md">
+            <div className="h-72 sm:h-80 md:h-[28rem] lg:h-[32rem] rounded-xl overflow-hidden shadow-md">
               <img 
                 src="/aboutus.jpg"
                 alt="About Gurumurti Decorators" 

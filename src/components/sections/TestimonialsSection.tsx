@@ -1,4 +1,3 @@
-
 import React from 'react';
 import SectionTitle from '@/components/SectionTitle';
 import TestimonialCard from '@/components/TestimonialCard';
@@ -24,7 +23,7 @@ const TestimonialsSection = () => {
   ];
 
   return (
-    <section id="testimonials" className="py-20 bg-gold-50">
+    <section id="testimonials" className="py-16 md:py-20 bg-gold-50">
       <div className="container mx-auto px-4">
         <SectionTitle 
           title="Happy Couples" 
