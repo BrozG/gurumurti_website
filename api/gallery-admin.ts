@@ -1,6 +1,12 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getGalleryImages } from "./_cloudinary";
 
+function normalizeSecret(value: unknown): string {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (typeof raw !== "string") return "";
+  return raw.trim().replace(/^['"]|['"]$/g, "");
+}
+
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse
@@ -9,9 +15,10 @@ export default async function handler(
     return res.status(405).json({ message: "Method not allowed" });
   }
 
-  const adminPassword = req.headers["x-admin-password"];
+  const adminPassword = normalizeSecret(req.headers["x-admin-password"]);
+  const expectedPassword = normalizeSecret(process.env.ADMIN_PASSWORD);
 
-  if (!adminPassword || adminPassword !== process.env.ADMIN_PASSWORD) {
+  if (!adminPassword || !expectedPassword || adminPassword !== expectedPassword) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 

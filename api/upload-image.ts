@@ -16,6 +16,12 @@ function getField(value: any): string | undefined {
   return undefined;
 }
 
+function normalizeSecret(value: unknown): string {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (typeof raw !== "string") return "";
+  return raw.trim().replace(/^['"]|['"]$/g, "");
+}
+
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse
@@ -24,12 +30,10 @@ export default async function handler(
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const adminPassword =
-    typeof req.headers["x-admin-password"] === "string"
-      ? req.headers["x-admin-password"]
-      : undefined;
+  const adminPassword = normalizeSecret(req.headers["x-admin-password"]);
+  const expectedPassword = normalizeSecret(process.env.ADMIN_PASSWORD);
 
-  if (adminPassword !== process.env.ADMIN_PASSWORD) {
+  if (!adminPassword || !expectedPassword || adminPassword !== expectedPassword) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 

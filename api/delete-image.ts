@@ -2,6 +2,12 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { deleteImage } from "./_cloudinary";
 
+function normalizeSecret(value: unknown): string {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (typeof raw !== "string") return "";
+  return raw.trim().replace(/^['"]|['"]$/g, "");
+}
+
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse
@@ -12,8 +18,10 @@ export default async function handler(
   }
 
   // Basic admin auth (server-side)
-  const adminPassword = req.headers["x-admin-password"];
-  if (adminPassword !== process.env.ADMIN_PASSWORD) {
+  const adminPassword = normalizeSecret(req.headers["x-admin-password"]);
+  const expectedPassword = normalizeSecret(process.env.ADMIN_PASSWORD);
+
+  if (!adminPassword || !expectedPassword || adminPassword !== expectedPassword) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 

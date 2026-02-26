@@ -31,6 +31,18 @@ function slugify(value: string) {
     .replace(/[^a-z0-9-]/g, "");
 }
 
+function extractErrorMessage(payload: any): string {
+  if (payload && typeof payload === "object") {
+    if (typeof payload.message === "string" && payload.message.trim()) {
+      return payload.message;
+    }
+    if (typeof payload.error === "string" && payload.error.trim()) {
+      return payload.error;
+    }
+  }
+  return "";
+}
+
 export default function Admin() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -69,38 +81,64 @@ export default function Admin() {
   }, [status]);
 
   async function handleLogin() {
-    if (!password) return;
+    const adminPassword = password.trim();
+    if (!adminPassword) return;
 
     setStatus("Verifying...");
 
     try {
       const res = await fetch("/api/gallery-admin", {
-        headers: { "x-admin-password": password },
+        headers: { "x-admin-password": adminPassword },
       });
 
-      if (!res.ok) throw new Error();
+      const data = await res.json().catch(() => null);
 
-      const data = await res.json();
-      setImages(data);
+      if (!res.ok) {
+        setAuthorized(false);
+        if (res.status === 401) {
+          setStatus("Incorrect password");
+        } else {
+          setStatus(extractErrorMessage(data) || `Login failed (${res.status})`);
+        }
+        return;
+      }
+
+      setImages(Array.isArray(data) ? data : []);
       setAuthorized(true);
       setStatus("");
     } catch {
       setAuthorized(false);
-      setStatus("Incorrect password");
+      setStatus("Unable to reach server");
     }
   }
 
   async function loadGallery() {
+    const adminPassword = password.trim();
+    if (!adminPassword) {
+      setStatus("Please enter password again");
+      setAuthorized(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await fetch("/api/gallery-admin", {
-        headers: { "x-admin-password": password },
+        headers: { "x-admin-password": adminPassword },
       });
 
-      if (!res.ok) throw new Error();
+      const data = await res.json().catch(() => null);
 
-      const data = await res.json();
-      setImages(data);
+      if (!res.ok) {
+        if (res.status === 401) {
+          setAuthorized(false);
+          setStatus("Session expired. Please login again");
+        } else {
+          setStatus(extractErrorMessage(data) || "Failed to load gallery");
+        }
+        return;
+      }
+
+      setImages(Array.isArray(data) ? data : []);
     } catch {
       setStatus("Failed to load gallery");
     } finally {
@@ -109,6 +147,13 @@ export default function Admin() {
   }
 
   async function handleUpload() {
+    const adminPassword = password.trim();
+    if (!adminPassword) {
+      setStatus("Please login again");
+      setAuthorized(false);
+      return;
+    }
+
     const categoryInput = category === "custom" ? customCategory : category;
     const categorySlug = slugify(categoryInput);
 
@@ -132,11 +177,20 @@ export default function Admin() {
     try {
       const res = await fetch("/api/upload-image", {
         method: "POST",
-        headers: { "x-admin-password": password },
+        headers: { "x-admin-password": adminPassword },
         body: formData,
       });
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        if (res.status === 401) {
+          setAuthorized(false);
+          setStatus("Session expired. Please login again");
+        } else {
+          const data = await res.json().catch(() => null);
+          setStatus(extractErrorMessage(data) || "Upload failed");
+        }
+        return;
+      }
 
       setStatus("Image uploaded");
       setShowUpload(false);
@@ -153,6 +207,13 @@ export default function Admin() {
   }
 
   async function handleDelete(id: string) {
+    const adminPassword = password.trim();
+    if (!adminPassword) {
+      setStatus("Please login again");
+      setAuthorized(false);
+      return;
+    }
+
     if (!confirm("Delete this image permanently?")) return;
 
     setDeletingId(id);
@@ -162,12 +223,21 @@ export default function Admin() {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "x-admin-password": password,
+          "x-admin-password": adminPassword,
         },
         body: JSON.stringify({ publicId: id }),
       });
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        if (res.status === 401) {
+          setAuthorized(false);
+          setStatus("Session expired. Please login again");
+        } else {
+          const data = await res.json().catch(() => null);
+          setStatus(extractErrorMessage(data) || "Delete failed");
+        }
+        return;
+      }
 
       setStatus("Image deleted");
       loadGallery();
