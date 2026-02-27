@@ -10,6 +10,25 @@ type GalleryImage = {
   title: string;
 };
 
+type FeedbackPopup = {
+  title: string;
+  message: string;
+  tone: "success" | "error";
+};
+
+const BASE_CATEGORIES = [
+  "wedding",
+  "reception",
+  "engagement",
+  "haldi",
+  "mehendi",
+  "anniversary",
+  "baby-shower",
+  "birthday",
+  "corporate",
+  "events",
+];
+
 function formatTitleFromId(id: string) {
   const slug = id.split("/").pop() || "";
   const withoutTimestamp = slug.replace(/-\d+$/, "");
@@ -29,6 +48,23 @@ function slugify(value: string) {
     .trim()
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "");
+}
+
+function getCategoryFromId(id: string) {
+  return slugify(id.split("/")[1] || "");
+}
+
+function mergeCategoryOptions(existing: string[], incoming: string[]) {
+  const baseSet = new Set(BASE_CATEGORIES);
+  const extras = new Set<string>();
+
+  for (const category of [...existing, ...incoming]) {
+    const normalized = slugify(category);
+    if (!normalized || baseSet.has(normalized)) continue;
+    extras.add(normalized);
+  }
+
+  return [...BASE_CATEGORIES, ...Array.from(extras).sort()];
 }
 
 function extractErrorMessage(payload: any): string {
@@ -59,29 +95,36 @@ export default function Admin() {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("wedding");
   const [customCategory, setCustomCategory] = useState("");
+  const [categoryOptions, setCategoryOptions] = useState<string[]>(BASE_CATEGORIES);
 
   const [status, setStatus] = useState("");
   const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const defaultCategories = [
-    "wedding",
-    "reception",
-    "engagement",
-    "haldi",
-    "mehendi",
-    "anniversary",
-    "baby-shower",
-    "birthday",
-    "corporate",
-    "events",
-  ];
+  const [popup, setPopup] = useState<FeedbackPopup | null>(null);
+  const [isPopupClosing, setIsPopupClosing] = useState(false);
 
   useEffect(() => {
     if (!status) return;
     const timer = setTimeout(() => setStatus(""), 3000);
     return () => clearTimeout(timer);
   }, [status]);
+
+  function openPopup(
+    title: string,
+    message: string,
+    tone: FeedbackPopup["tone"] = "success"
+  ) {
+    setIsPopupClosing(false);
+    setPopup({ title, message, tone });
+  }
+
+  function closePopup() {
+    setIsPopupClosing(true);
+    setTimeout(() => {
+      setPopup(null);
+      setIsPopupClosing(false);
+    }, 180);
+  }
 
   async function handleLogin() {
     const adminPassword = password.trim();
@@ -106,7 +149,11 @@ export default function Admin() {
         return;
       }
 
-      setImages(Array.isArray(data) ? data : []);
+      const nextImages = Array.isArray(data) ? data : [];
+      setImages(nextImages);
+      setCategoryOptions((prev) =>
+        mergeCategoryOptions(prev, nextImages.map((img) => getCategoryFromId(img.id)))
+      );
       setAuthorized(true);
       setStatus("");
     } catch {
@@ -141,7 +188,11 @@ export default function Admin() {
         return;
       }
 
-      setImages(Array.isArray(data) ? data : []);
+      const nextImages = Array.isArray(data) ? data : [];
+      setImages(nextImages);
+      setCategoryOptions((prev) =>
+        mergeCategoryOptions(prev, nextImages.map((img) => getCategoryFromId(img.id)))
+      );
     } catch {
       setStatus("Failed to load gallery");
     } finally {
@@ -165,6 +216,7 @@ export default function Admin() {
       return;
     }
 
+    setCategoryOptions((prev) => mergeCategoryOptions(prev, [categorySlug]));
     setUploading(true);
 
     const titleSlug = slugify(title);
@@ -183,25 +235,38 @@ export default function Admin() {
         headers: { "x-admin-password": adminPassword },
         body: formData,
       });
+      const data = await res.json().catch(() => null);
 
       if (!res.ok) {
         if (res.status === 401) {
           setAuthorized(false);
           setStatus("Session expired. Please login again");
         } else {
-          const data = await res.json().catch(() => null);
           setStatus(extractErrorMessage(data) || "Upload failed");
         }
         return;
       }
 
-      setStatus("Image uploaded");
+      const uploadedImage: GalleryImage = {
+        id: data?.publicId || generatedId,
+        src: data?.url || "",
+        title,
+      };
+
+      if (uploadedImage.src) {
+        setImages((prev) => [
+          uploadedImage,
+          ...prev.filter((img) => img.id !== uploadedImage.id),
+        ]);
+      }
+
+      setStatus("");
+      openPopup("Upload Successful", "Image has been uploaded.");
       setShowUpload(false);
       setFile(null);
       setTitle("");
-      setCategory("wedding");
+      setCategory(categorySlug);
       setCustomCategory("");
-      loadGallery();
     } catch {
       setStatus("Upload failed");
     } finally {
@@ -219,6 +284,8 @@ export default function Admin() {
 
     if (!confirm("Delete this image permanently?")) return;
 
+    const removedImage = images.find((img) => img.id === id) || null;
+    setImages((prev) => prev.filter((img) => img.id !== id));
     setDeletingId(id);
 
     try {
@@ -233,18 +300,27 @@ export default function Admin() {
 
       if (!res.ok) {
         if (res.status === 401) {
+          if (removedImage) {
+            setImages((prev) => [removedImage, ...prev]);
+          }
           setAuthorized(false);
           setStatus("Session expired. Please login again");
         } else {
           const data = await res.json().catch(() => null);
+          if (removedImage) {
+            setImages((prev) => [removedImage, ...prev]);
+          }
           setStatus(extractErrorMessage(data) || "Delete failed");
         }
         return;
       }
 
-      setStatus("Image deleted");
-      loadGallery();
+      setStatus("");
+      openPopup("Delete Successful", "Image has been deleted.");
     } catch {
+      if (removedImage) {
+        setImages((prev) => [removedImage, ...prev]);
+      }
       setStatus("Delete failed");
     } finally {
       setDeletingId(null);
@@ -321,7 +397,7 @@ export default function Admin() {
                   onChange={(e) => setCategory(e.target.value)}
                   className="bg-zinc-900 text-white border border-yellow-500 p-2 rounded w-full"
                 >
-                  {defaultCategories.map((item) => (
+                  {categoryOptions.map((item) => (
                     <option key={item} value={item}>
                       {formatCategoryName(item)}
                     </option>
@@ -422,6 +498,41 @@ export default function Admin() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {popup && (
+        <div className="fixed inset-0 z-[100] bg-black/45 backdrop-blur-[2px] flex items-center justify-center p-4">
+          <div
+            className={[
+              "w-full max-w-xs rounded-xl border p-5 shadow-2xl transition-all duration-200 ease-out",
+              popup.tone === "success"
+                ? "bg-zinc-900 border-emerald-500/50"
+                : "bg-zinc-900 border-red-500/50",
+              isPopupClosing
+                ? "opacity-0 scale-95 translate-y-2"
+                : "opacity-100 scale-100 translate-y-0",
+            ].join(" ")}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <span
+                className={[
+                  "inline-block h-2.5 w-2.5 rounded-full",
+                  popup.tone === "success" ? "bg-emerald-400" : "bg-red-400",
+                ].join(" ")}
+              />
+              <h3 className="text-white font-semibold text-base">{popup.title}</h3>
+            </div>
+
+            <p className="text-sm text-zinc-200 mb-4">{popup.message}</p>
+
+            <Button
+              onClick={closePopup}
+              className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold"
+            >
+              OK
+            </Button>
+          </div>
         </div>
       )}
     </div>
