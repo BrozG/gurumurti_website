@@ -8,11 +8,15 @@ function readRequiredEnv(name: string): string {
   return raw.trim().replace(/^['"]|['"]$/g, "");
 }
 
-cloudinary.config({
-  cloud_name: readRequiredEnv("CLOUDINARY_CLOUD_NAME"),
-  api_key: readRequiredEnv("CLOUDINARY_API_KEY"),
-  api_secret: readRequiredEnv("CLOUDINARY_API_SECRET"),
-});
+function getCloudinary() {
+  cloudinary.config({
+    cloud_name: readRequiredEnv("CLOUDINARY_CLOUD_NAME"),
+    api_key: readRequiredEnv("CLOUDINARY_API_KEY"),
+    api_secret: readRequiredEnv("CLOUDINARY_API_SECRET"),
+  });
+
+  return cloudinary;
+}
 
 function sanitizeContextValue(value: string) {
   return value.replace(/[|=]/g, " ").trim();
@@ -23,9 +27,10 @@ export async function uploadImage(
   publicId: string,
   title: string
 ) {
+  const cld = getCloudinary();
   const safeTitle = sanitizeContextValue(title);
 
-  return cloudinary.uploader.upload(filePath, {
+  return cld.uploader.upload(filePath, {
     public_id: publicId,
     overwrite: true,
     context: `caption=${safeTitle}`,
@@ -33,7 +38,8 @@ export async function uploadImage(
 }
 
 export async function deleteImage(publicId: string) {
-  return cloudinary.uploader.destroy(publicId, {
+  const cld = getCloudinary();
+  return cld.uploader.destroy(publicId, {
     resource_type: "image",
   });
 }
@@ -43,7 +49,8 @@ function readContextValue(image: any, key: string) {
 }
 
 export async function getGalleryImages() {
-  const result = await cloudinary.search
+  const cld = getCloudinary();
+  const result = await cld.search
     .expression(
       "public_id:gurumurti-decorators/* OR public_id:Gurumurti-decorators/*"
     )
