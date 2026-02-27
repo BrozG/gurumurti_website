@@ -39,6 +39,9 @@ function extractErrorMessage(payload: any): string {
     if (typeof payload.error === "string" && payload.error.trim()) {
       return payload.error;
     }
+    if (typeof payload.details === "string" && payload.details.trim()) {
+      return payload.details;
+    }
   }
   return "";
 }

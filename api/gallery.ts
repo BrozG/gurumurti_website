@@ -23,6 +23,7 @@ export default async function handler(
 
     return res.status(500).json({
       error: "Failed to fetch gallery images",
+      details: error?.message || "Unknown server error",
     });
   }
 }

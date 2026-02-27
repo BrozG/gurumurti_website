@@ -25,8 +25,11 @@ export default async function handler(
   try {
     const images = await getGalleryImages();
     return res.status(200).json(images);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Gallery Admin Error:", error);
-    return res.status(500).json({ message: "Failed to load gallery" });
+    return res.status(500).json({
+      message: "Failed to load gallery",
+      details: error?.message || "Unknown server error",
+    });
   }
 }

@@ -1,9 +1,17 @@
 import { v2 as cloudinary } from "cloudinary";
 
+function readRequiredEnv(name: string): string {
+  const raw = process.env[name];
+  if (!raw || typeof raw !== "string") {
+    throw new Error(`Missing required env var: ${name}`);
+  }
+  return raw.trim().replace(/^['"]|['"]$/g, "");
+}
+
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
-  api_key: process.env.CLOUDINARY_API_KEY!,
-  api_secret: process.env.CLOUDINARY_API_SECRET!,
+  cloud_name: readRequiredEnv("CLOUDINARY_CLOUD_NAME"),
+  api_key: readRequiredEnv("CLOUDINARY_API_KEY"),
+  api_secret: readRequiredEnv("CLOUDINARY_API_SECRET"),
 });
 
 function sanitizeContextValue(value: string) {
@@ -36,7 +44,9 @@ function readContextValue(image: any, key: string) {
 
 export async function getGalleryImages() {
   const result = await cloudinary.search
-    .expression("public_id:Gurumurti-decorators/*")
+    .expression(
+      "public_id:gurumurti-decorators/* OR public_id:Gurumurti-decorators/*"
+    )
     .sort_by("created_at", "desc")
     .max_results(500)
     .execute();
