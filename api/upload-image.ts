@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { uploadImage } from "./_cloudinary";
+import { uploadImage } from "./_cloudinary.js";
 import fs from "fs";
 import { IncomingForm, File } from "formidable";
 

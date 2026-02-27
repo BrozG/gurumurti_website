@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getGalleryImages } from "./_cloudinary";
+import { getGalleryImages } from "./_cloudinary.js";
 
 /**
  * GET /api/gallery

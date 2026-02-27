@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getGalleryImages } from "./_cloudinary";
+import { getGalleryImages } from "./_cloudinary.js";
 
 function normalizeSecret(value: unknown): string {
   const raw = Array.isArray(value) ? value[0] : value;
