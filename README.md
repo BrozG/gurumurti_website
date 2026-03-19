@@ -2,7 +2,7 @@
 
 > A professional client website built with React and TypeScript, featuring a Cloudinary-powered gallery and admin panel.
 
-🔗 **Live Site:** [gurumurti-website.vercel.app](https://gurumurti-website.vercel.app)
+🔗 **Live Site:** [gurumurti-website.vercel.app] (https://www.gurumurtidecorators.com/)
 
 ---
 
