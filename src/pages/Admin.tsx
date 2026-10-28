@@ -16,6 +16,16 @@ type FeedbackPopup = {
   tone: "success" | "error";
 };
 
+type UploadItemStatus = "pending" | "uploading" | "success" | "error";
+
+type UploadItem = {
+  id: string;
+  file: File;
+  title: string;
+  status: UploadItemStatus;
+  error?: string;
+};
+
 const BASE_CATEGORIES = [
   "wedding",
   "reception",
@@ -48,6 +58,11 @@ function slugify(value: string) {
     .trim()
     .replace(/\s+/g, "-")
     .replace(/[^a-z0-9-]/g, "");
+}
+
+function titleFromFilename(filename: string) {
+  const nameWithoutExtension = filename.replace(/\.[^.]+$/, "");
+  return nameWithoutExtension.replace(/[-_]+/g, " ").trim() || "Untitled image";
 }
 
 function getCategoryFromId(id: string) {
@@ -91,8 +106,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(false);
 
   const [showUpload, setShowUpload] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [title, setTitle] = useState("");
+  const [uploadItems, setUploadItems] = useState<UploadItem[]>([]);
   const [category, setCategory] = useState("wedding");
   const [customCategory, setCustomCategory] = useState("");
   const [categoryOptions, setCategoryOptions] = useState<string[]>(BASE_CATEGORIES);
@@ -211,62 +225,119 @@ export default function Admin() {
     const categoryInput = category === "custom" ? customCategory : category;
     const categorySlug = slugify(categoryInput);
 
-    if (!file || !title || !categorySlug) {
-      setStatus("Image, title and category are required");
+    if (!uploadItems.length || !categorySlug) {
+      setStatus("At least one image and category are required");
+      return;
+    }
+
+    const missingTitle = uploadItems.some((item) => !item.title.trim());
+    if (missingTitle) {
+      setStatus("Each selected image must have a title");
       return;
     }
 
     setCategoryOptions((prev) => mergeCategoryOptions(prev, [categorySlug]));
     setUploading(true);
-
-    const titleSlug = slugify(title);
-    const year = new Date().getFullYear();
-    const timestamp = Date.now();
-    const generatedId = `gurumurti-decorators/${categorySlug}/${year}/${titleSlug}-${timestamp}`;
-
-    const formData = new FormData();
-    formData.append("image", file);
-    formData.append("publicId", generatedId);
-    formData.append("title", title);
+    setUploadItems((prev) =>
+      prev.map((item) => ({ ...item, status: "pending", error: undefined }))
+    );
 
     try {
-      const res = await fetch("/api/upload-image", {
-        method: "POST",
-        headers: { "x-admin-password": adminPassword },
-        body: formData,
-      });
-      const data = await res.json().catch(() => null);
+      const year = new Date().getFullYear();
+      const uploadedImages: GalleryImage[] = [];
+      let failedCount = 0;
 
-      if (!res.ok) {
-        if (res.status === 401) {
-          setAuthorized(false);
-          setStatus("Session expired. Please login again");
-        } else {
-          setStatus(extractErrorMessage(data) || "Upload failed");
+      for (let index = 0; index < uploadItems.length; index++) {
+        const currentItem = uploadItems[index];
+        setStatus(`Uploading ${index + 1} of ${uploadItems.length}...`);
+        setUploadItems((prev) =>
+          prev.map((item) =>
+            item.id === currentItem.id
+              ? { ...item, status: "uploading", error: undefined }
+              : item
+          )
+        );
+
+        const titleValue = currentItem.title.trim();
+        const titleSlug = slugify(titleValue) || "image";
+        const uniqueSuffix = `${Date.now()}-${index}`;
+        const generatedId = `gurumurti-decorators/${categorySlug}/${year}/${titleSlug}-${uniqueSuffix}`;
+
+        const formData = new FormData();
+        formData.append("image", currentItem.file);
+        formData.append("publicId", generatedId);
+        formData.append("title", titleValue);
+
+        const res = await fetch("/api/upload-image", {
+          method: "POST",
+          headers: { "x-admin-password": adminPassword },
+          body: formData,
+        });
+        const data = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          if (res.status === 401) {
+            setAuthorized(false);
+            setStatus("Session expired. Please login again");
+            return;
+          }
+
+          failedCount += 1;
+          const errorMessage = extractErrorMessage(data) || "Upload failed";
+          setUploadItems((prev) =>
+            prev.map((item) =>
+              item.id === currentItem.id
+                ? { ...item, status: "error", error: errorMessage }
+                : item
+            )
+          );
+          continue;
         }
-        return;
+
+        const uploadedImage: GalleryImage = {
+          id: data?.publicId || generatedId,
+          src: data?.url || "",
+          title: titleValue,
+        };
+
+        if (uploadedImage.src) {
+          uploadedImages.push(uploadedImage);
+        }
+
+        setUploadItems((prev) =>
+          prev.map((item) =>
+            item.id === currentItem.id ? { ...item, status: "success" } : item
+          )
+        );
       }
 
-      const uploadedImage: GalleryImage = {
-        id: data?.publicId || generatedId,
-        src: data?.url || "",
-        title,
-      };
-
-      if (uploadedImage.src) {
-        setImages((prev) => [
-          uploadedImage,
-          ...prev.filter((img) => img.id !== uploadedImage.id),
-        ]);
+      if (uploadedImages.length) {
+        setImages((prev) => {
+          const seen = new Set(uploadedImages.map((img) => img.id));
+          return [...uploadedImages, ...prev.filter((img) => !seen.has(img.id))];
+        });
       }
 
-      setStatus("");
-      openPopup("Upload Successful", "Image has been uploaded.");
-      setShowUpload(false);
-      setFile(null);
-      setTitle("");
-      setCategory(categorySlug);
-      setCustomCategory("");
+      if (failedCount === 0) {
+        setStatus("");
+        openPopup(
+          "Upload Successful",
+          uploadedImages.length === 1
+            ? "Image has been uploaded."
+            : `${uploadedImages.length} images have been uploaded.`
+        );
+        setShowUpload(false);
+        setUploadItems([]);
+        setCategory(categorySlug);
+        setCustomCategory("");
+      } else {
+        setUploadItems((prev) => prev.filter((item) => item.status !== "success"));
+        if (uploadedImages.length) {
+          setStatus(`${uploadedImages.length} uploaded, ${failedCount} failed.`);
+        } else {
+          setStatus("All uploads failed. Please review errors and try again.");
+        }
+      }
     } catch {
       setStatus("Upload failed");
     } finally {
@@ -415,25 +486,78 @@ export default function Admin() {
                 )}
 
                 <Input
-                  placeholder="Title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="!bg-zinc-900 !text-white !border-yellow-500"
+                 type="file"
+                 accept="image/*"
+                 multiple
+                 onChange={(e) => {
+                   const selectedFiles = Array.from(e.target.files || []);
+                   setUploadItems(
+                     selectedFiles.map((selectedFile, index) => ({
+                       id: `${selectedFile.name}-${selectedFile.lastModified}-${index}`,
+                       file: selectedFile,
+                       title: titleFromFilename(selectedFile.name),
+                       status: "pending",
+                     }))
+                   );
+                 }}
+                 className="!bg-zinc-900 !text-white !border-yellow-500"
                 />
 
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setFile(e.target.files?.[0] || null)}
-                  className="!bg-zinc-900 !text-white !border-yellow-500"
-                />
+                {uploadItems.length > 0 && (
+                 <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                   {uploadItems.map((item) => (
+                     <div
+                       key={item.id}
+                       className="border border-yellow-500/30 rounded p-2 space-y-2"
+                     >
+                       <p className="text-xs text-zinc-300 truncate">{item.file.name}</p>
+                       <Input
+                         placeholder="Title"
+                         value={item.title}
+                         disabled={uploading}
+                         onChange={(e) =>
+                           setUploadItems((prev) =>
+                             prev.map((current) =>
+                               current.id === item.id
+                                 ? { ...current, title: e.target.value }
+                                 : current
+                             )
+                           )
+                         }
+                         className="!bg-zinc-900 !text-white !border-yellow-500"
+                       />
+                       {item.status !== "pending" && (
+                         <p
+                           className={`text-xs ${
+                             item.status === "success"
+                               ? "text-emerald-400"
+                               : item.status === "error"
+                               ? "text-red-400"
+                               : "text-yellow-300"
+                           }`}
+                         >
+                           {item.status === "uploading"
+                             ? "Uploading..."
+                             : item.status === "success"
+                             ? "Uploaded"
+                             : item.error || "Upload failed"}
+                         </p>
+                       )}
+                     </div>
+                   ))}
+                 </div>
+                )}
 
                 <Button
-                  onClick={handleUpload}
-                  disabled={uploading}
-                  className="w-full bg-yellow-500 text-black"
+                 onClick={handleUpload}
+                 disabled={uploading || !uploadItems.length}
+                 className="w-full bg-yellow-500 text-black"
                 >
-                  {uploading ? "Uploading..." : "Upload"}
+                 {uploading
+                   ? `Uploading ${uploadItems.length > 1 ? "Images..." : "Image..."}`
+                   : uploadItems.length > 1
+                   ? `Upload ${uploadItems.length} Images`
+                   : "Upload"}
                 </Button>
               </div>
             )}

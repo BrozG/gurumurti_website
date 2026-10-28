@@ -60,9 +60,10 @@ npm install
 ### 3. Set up environment variables
 Create a `.env` file:
 ```bash
-VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
-VITE_CLOUDINARY_API_KEY=your_api_key
-VITE_CLOUDINARY_API_SECRET=your_api_secret
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+ADMIN_PASSWORD=your_admin_password
 ```
 
 ### 4. Run the dev server
@@ -75,7 +76,7 @@ npm run dev
 ## 🔐 Admin Panel
 
 The admin panel allows the client to:
-- ✅ Upload new images directly to Cloudinary
+- ✅ Upload one or multiple images directly to Cloudinary
 - ✅ Manage gallery images (add/remove)
 - ✅ Update gallery without any developer help
 
