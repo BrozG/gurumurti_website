@@ -73,13 +73,16 @@ export default async function handler(
       });
     }
 
-    const result = await uploadImage(
-      imageFile.filepath,
-      publicId,
-      title
-    );
-
-    fs.unlinkSync(imageFile.filepath);
+    let result;
+    try {
+      result = await uploadImage(
+        imageFile.filepath,
+        publicId,
+        title
+      );
+    } finally {
+      fs.promises.unlink(imageFile.filepath).catch(() => {});
+    }
 
     return res.status(200).json({
       success: true,
