@@ -68,9 +68,6 @@ const GallerySection = () => {
                     className="w-full bg-transparent p-0 text-left border-0"
                   >
                     <GalleryItem imageSrc={item.src} title={displayTitle} />
-                    <p className="mt-3 text-sm font-semibold text-gold-800">
-                      {displayTitle}
-                    </p>
                   </button>
                 );
               })}
@@ -108,12 +105,6 @@ const GallerySection = () => {
               >
                 &times;
               </button>
-
-              <div className="text-center mt-6 px-4">
-                <h3 className="text-xl md:text-2xl font-semibold text-white">
-                  {selectedImage.title?.trim() || formatTitleFromId(selectedImage.id)}
-                </h3>
-              </div>
             </div>
           </div>
         )}

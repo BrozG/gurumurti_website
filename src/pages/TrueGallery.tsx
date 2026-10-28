@@ -16,17 +16,6 @@ function formatTitleFromId(id: string) {
   return withoutTimestamp.replace(/-/g, " ").trim() || "Untitled image";
 }
 
-function getCategoryFromId(id: string) {
-  return id.split("/")[1] || "others";
-}
-
-function formatCategoryName(category: string) {
-  return category
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
 export default function TrueGallery() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
@@ -55,13 +44,6 @@ export default function TrueGallery() {
     };
   }, [selectedImage]);
 
-  const groupedImages = images.reduce<Record<string, GalleryImage[]>>((acc, image) => {
-    const category = getCategoryFromId(image.id);
-    if (!acc[category]) acc[category] = [];
-    acc[category].push(image);
-    return acc;
-  }, {});
-
   return (
     <>
       <Navbar />
@@ -76,34 +58,21 @@ export default function TrueGallery() {
           {loading ? (
             <p className="text-center text-muted-foreground mt-10">Loading gallery...</p>
           ) : (
-            <div className="space-y-14">
-              {Object.entries(groupedImages).map(([category, categoryImages]) => (
-                <div key={category}>
-                  <h3 className="text-xl md:text-2xl font-serif font-semibold text-gold-800 border-b border-gold-300 pb-3 mb-6">
-                    {formatCategoryName(category)}
-                  </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {images.map((item) => {
+                const displayTitle = item.title?.trim() || formatTitleFromId(item.id);
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {categoryImages.map((item) => {
-                      const displayTitle = item.title?.trim() || formatTitleFromId(item.id);
-
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => setSelectedImage(item)}
-                          className="w-full bg-transparent p-0 text-left border-0"
-                        >
-                          <GalleryItem imageSrc={item.src} title={displayTitle} />
-                          <p className="mt-3 text-sm font-semibold text-gold-800">
-                            {displayTitle}
-                          </p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setSelectedImage(item)}
+                    className="w-full bg-transparent p-0 text-left border-0"
+                  >
+                    <GalleryItem imageSrc={item.src} title={displayTitle} />
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -128,12 +97,6 @@ export default function TrueGallery() {
                 >
                   &times;
                 </button>
-
-                <div className="text-center mt-6 px-4">
-                  <h3 className="text-xl md:text-2xl font-semibold text-white">
-                    {selectedImage.title?.trim() || formatTitleFromId(selectedImage.id)}
-                  </h3>
-                </div>
               </div>
             </div>
           )}
